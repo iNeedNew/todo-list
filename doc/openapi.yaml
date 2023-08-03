@@ -7,6 +7,11 @@ servers:
     -   url: http://localhost:7777
         description: Main server REST API
 
+tags:
+    -   name: Authentication
+        description: Endpoints for create user, get JWT, refresh and logout
+    -   name: Todo-List
+
 components:
     securitySchemes:
         bearerAuth:
@@ -106,13 +111,141 @@ components:
                 $ref: '#/components/schemas/TaskItem'
 
 
+        UserRegister:
+            type: object
+            properties:
+                name:
+                    type: string
+                email:
+                    type: string
+                password:
+                    type: string
+
+        UserLogin:
+            type: object
+            properties:
+                email:
+                    type: string
+                password:
+                    type: string
+        JWTAuth:
+            type: object
+            properties:
+                access_token:
+                    type: string
+                token_type:
+                    type: string
+                    example: bearer
+                expires_in:
+                    type: integer
+                    example: 600
+        UserPayload:
+            type: object
+            properties:
+                id:
+                    type: integer
+                name:
+                    type: string
+                email:
+                    type: string
+                email_verified_at:
+                    type: string
+                created_at:
+                    type: string
+                    format: date-time
+                updated_at:
+                    type: string
+                    format: date-time
+
+
 security:
     -   bearerAuth: [ ]
 
 paths:
 
+    /api/auth/register:
+        post:
+            tags:
+                - Authentication
+            summary: Register new user.
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/UserRegister'
+            responses:
+                201:
+                    description: User created.
+
+    /api/auth/login:
+        post:
+            tags:
+                - Authentication
+            summary: Get JWT user.
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/UserLogin'
+            responses:
+                '200':
+                    description: Response JWT.
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    message:
+                                        type: string
+                                    data:
+                                        $ref: '#/components/schemas/JWTAuth'
+    /api/auth/logout:
+        post:
+            tags:
+                - Authentication
+            summary: Logout auth user.
+            responses:
+                '200':
+                    description: Response JWT.
+    /api/auth/me:
+        post:
+            tags:
+                - Authentication
+            summary: Get User Payload.
+            responses:
+                '200':
+                    description: User Payload.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UserPayload'
+    /api/auth/refresh:
+        post:
+            tags:
+                - Authentication
+            summary: Refresh access token
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                message:
+                                    type: string
+                                data:
+                                    $ref: '#/components/schemas/JWTAuth'
+
+            responses:
+                '200':
+                    description: User Payload.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UserPayload'
     /api/tasks:
         get:
+            tags:
+                - Todo-List
             security:
                 -   bearerAuth: [ ]
             parameters:
@@ -186,6 +319,8 @@ paths:
 
 
         post:
+            tags:
+                - Todo-List
             security:
                 -   bearerAuth: [ ]
             summary: Store task.
@@ -201,6 +336,8 @@ paths:
     /api/tasks/{task}:
 
         get:
+            tags:
+                - Todo-List
             security:
                 -   bearerAuth: [ ]
             summary: Get task.
@@ -214,6 +351,8 @@ paths:
 
 
         put:
+            tags:
+                - Todo-List
             security:
                 -   bearerAuth: [ ]
             summary: Update task.
@@ -227,6 +366,8 @@ paths:
                     description: Update task.
 
         patch:
+            tags:
+                - Todo-List
             security:
                 -   bearerAuth: [ ]
             summary: Update task, one field.
@@ -240,6 +381,8 @@ paths:
                     description: Task updated.
 
         delete:
+            tags:
+                - Todo-List
             security:
                 -   bearerAuth: [ ]
             summary: Delete task.
@@ -250,6 +393,8 @@ paths:
     /api/tasks/{task}/change-status:
 
         patch:
+            tags:
+                - Todo-List
             security:
                 -   bearerAuth: [ ]
             summary: Update task, one field.
