@@ -57,3 +57,6 @@ docker exec app php artisan serve --host 0.0.0.0 --port 8000
 ### REST API documentation
 
 #### http://localhost:8888
+
+![image](https://github.com/iNeedNew/todo-list/assets/60880948/d3a06231-401c-4b41-bbe5-bdaa3d65d0ee)
+
