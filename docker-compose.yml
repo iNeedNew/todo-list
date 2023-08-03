@@ -1,0 +1,33 @@
+version: "3.9"
+
+services:
+    app:
+        container_name: app
+        build:
+            context: .
+            dockerfile: docker/app/Dockerfile
+        volumes:
+            - ./:/var/www/
+            - ./docker/app/custom.ini:/usr/local/etc/php/conf.d/custom.ini
+        ports:
+            - "7777:8000"
+    db:
+        container_name: db
+        image: mysql
+        environment:
+            MYSQL_ROOT_PASSWORD: root
+            MYSQL_DATABASE: todo-list
+        volumes:
+            - ./tmp/db:/var/lib/mysql
+        command: mysqld --character-set-server=utf8 --collation-server=utf8_unicode_ci
+        ports:
+            - "6666:3306"
+    swagger-ui:
+        image: swaggerapi/swagger-ui
+        container_name: swagger_ui_container
+        ports:
+            - "8888:8080"
+        volumes:
+            - ./doc:/usr/share/nginx/html/doc
+        environment:
+            API_URL: doc/openapi.yaml

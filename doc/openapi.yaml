@@ -1,0 +1,264 @@
+openapi: 3.0.0
+info:
+    title: Todo-list API
+    version: "1"
+
+servers:
+    -   url: http://localhost:7777
+        description: Main server REST API
+
+components:
+    securitySchemes:
+        bearerAuth:
+            type: http
+            scheme: bearer
+            bearerFormat: JWT
+    schemas:
+        CreateTask:
+            type: object
+            properties:
+                title:
+                    type: string
+                    required: true
+                description:
+                    type: string
+                parent_id:
+                    type: integer
+                    default: null
+                    description: Relation to parent task.
+                priority:
+                    type: integer
+                    enum:
+                        - 1
+                        - 2
+                        - 3
+                        - 4
+                        - 5
+
+        UpdateTask:
+            type: object
+            properties:
+                title:
+                    type: string
+                    required: true
+                description:
+                    type: string
+                parent_id:
+                    type: integer
+                    default: null
+                    description: Relation to parent task.
+                priority:
+                    type: integer
+                    enum:
+                        - 1
+                        - 2
+                        - 3
+                        - 4
+                        - 5
+
+        UpdateStatus:
+            type: object
+            properties:
+                status:
+                    type: string
+                    enum:
+                        - todo
+                        - done
+
+        TaskItem:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    default: 1
+                title:
+                    type: string
+                description:
+                    type: string
+                parent_id:
+                    type: integer
+                    default: null
+                    description: Relation to parent task.
+                status:
+                    type: string
+                    enum:
+                        - todo
+                        - done
+                priority:
+                    type: integer
+                    enum:
+                        - 1
+                        - 2
+                        - 3
+                        - 4
+                        - 5
+                completed_at:
+                    type: string
+                    format: date-time
+                    default: null
+                created_at:
+                    type: string
+                    format: date-time
+
+        TaskItems:
+            type: array
+            items:
+                $ref: '#/components/schemas/TaskItem'
+
+
+security:
+    -   bearerAuth: [ ]
+
+paths:
+
+    /api/tasks:
+        get:
+            security:
+                -   bearerAuth: [ ]
+            parameters:
+                -   in: query
+                    name: status
+                    description: Filtering by status.
+                    schema:
+                        type: string
+                        enum:
+                            - todo
+                            - done
+
+                -   in: query
+                    name: priority_from
+                    description: Filtering by priority from.
+                    schema:
+                        type: integer
+                        enum:
+                            - 1
+                            - 2
+                            - 3
+                            - 4
+                            - 5
+
+                -   in: query
+                    name: priority_to
+                    description: Filtering by priority to.
+                    schema:
+                        type: integer
+                        enum:
+                            - 1
+                            - 2
+                            - 3
+                            - 4
+                            - 5
+
+                -   in: query
+                    name: search
+                    description: Filtering by keyword, fulltext search.
+                    schema:
+                        type: string
+
+                -   in: query
+                    name: sort_by
+                    description: Sort by field.
+                    schema:
+                        type: string
+                        enum:
+                            - completed_at
+                            - created_at
+                            - priority
+                        default: created_at
+                -   in: query
+                    name: order
+                    description: Type sort.
+                    schema:
+                        type: string
+                        enum:
+                            - desc
+                            - asc
+                        default: asc
+
+            summary: Get tasks lists.
+            responses:
+                '200':
+                    description: Get all tasks auth user.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/TaskItems'
+
+
+        post:
+            security:
+                -   bearerAuth: [ ]
+            summary: Store task.
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/CreateTask'
+            responses:
+                '201':
+                    description: Task created.
+
+    /api/tasks/{task}:
+
+        get:
+            security:
+                -   bearerAuth: [ ]
+            summary: Get task.
+            responses:
+                '200':
+                    description: Task item.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/TaskItem'
+
+
+        put:
+            security:
+                -   bearerAuth: [ ]
+            summary: Update task.
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/UpdateTask'
+            responses:
+                '201':
+                    description: Update task.
+
+        patch:
+            security:
+                -   bearerAuth: [ ]
+            summary: Update task, one field.
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/UpdateTask'
+            responses:
+                '201':
+                    description: Task updated.
+
+        delete:
+            security:
+                -   bearerAuth: [ ]
+            summary: Delete task.
+            responses:
+                '204':
+                    description: Task deleted.
+
+    /api/tasks/{task}/change-status:
+
+        patch:
+            security:
+                -   bearerAuth: [ ]
+            summary: Update task, one field.
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/UpdateStatus'
+            responses:
+                '200':
+                    description: Status update
+
